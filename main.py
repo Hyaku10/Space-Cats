@@ -45,12 +45,13 @@ class EneLvl1:
         self.health = health
         self.img = enelvl1_img
         self.mask = pygame.mask.from_surface(self.img)
+        self.max_health = health
 
     def draw(self):
         WIN.blit(self.img, (self.x, self.y))
 
     def kill(self):
-        enelvl1_list.erase(enemy)
+        enelvl1_list.remove(self)
 
     def collision(self, obj):
         return collide(obj, self)
@@ -91,36 +92,39 @@ def draw_player(player):
 
 # HANDLE BULLETS
 def handle_bullets(clip, enelvl1_list):
-    for bullet in clip:
-        bullet.draw()
-        bullet.y -= bulspd
-        if bullet.y < 1:
-            bullet.kill()
-        for enemy in enelvl1_list:
-            if bullet.collision(enemy):
-                enemy.health -= 5
-                enelvl1_list.remove(enemy)
-
+    #try:
+        for bullet in clip:
+            bullet.draw()
+            bullet.y -= bulspd
+            if bullet.y< 1:
+                bullet.kill()
+            for enemy in enelvl1_list:
+                if bullet.collision(enemy):
+                    enemy.health -= 5
+                    bullet.kill()
+                if enemy.health <= enemy.max_health/2:
+                    enemy.img = pla_img
+    #except(ValueError):
+     #   pass
 
 # HANDLE ENEMIES
 def handle_enemies(enelvl1_list):
-    if len(enelvl1_list) > 0:
-        for enemy in enelvl1_list:
-            enemy.draw()
-            if enemy.direction == True:
-                enemy.x += enelvl1spd
-                if enemy.x > 950:
-                    enemy.direction = False
-                    enemy.y += 50
-            elif enemy.direction == False:
-                enemy.x -= enelvl1spd
-                if enemy.x < 50:
-                    enemy.direction = True
-                    enemy.y += 50
-            elif enemy.y > 600:
-                enemies.remove(enemy)
-            elif enemy.health <= 0:
-                enemy.kill()
+    for enemy in enelvl1_list:
+        enemy.draw()
+        if enemy.direction == True:
+            enemy.x += enelvl1spd
+            if enemy.x > 950:
+                enemy.direction = False
+                enemy.y += 50
+        elif enemy.direction == False:
+            enemy.x -= enelvl1spd
+            if enemy.x < 50:
+                enemy.direction = True
+                enemy.y += 50
+        if enemy.y > 600:
+            enemy.kill()
+        if enemy.health <= 0:
+            enemy.kill()
     return enelvl1_list
 
 
