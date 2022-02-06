@@ -2,7 +2,6 @@ import main
 import pygame
 from sys import exit
 
-
 class shootable_buttons():
     def __init__(self, name, x, y, img):
         self.name = name
@@ -16,7 +15,8 @@ class shootable_buttons():
         if self.name == 'play':
             return False
         if self.name == 'exit':
-            exit(0)
+            return exit(0)
+
         if self.name == 'title':
             return True
 
@@ -30,10 +30,10 @@ start_button = shootable_buttons("play", (660 - 128 / 2), (300 - 128 / 2),
                                  pygame.image.load('assets/menu_assets/002-play.png'))
 exit_button = shootable_buttons("exit", (330 - 128 / 2), (300 - 128 / 2),
                                 pygame.image.load('assets/menu_assets/001-exit.png'))
-logo = shootable_buttons("title", (500 - 540 / 2), (300 - 540 / 2),
+title = shootable_buttons("title", (500 - 540 / 2), (300 - 540 / 2),
                          pygame.image.load('assets/menu_assets/temp_title_art.png'))
 # 960x540
-shootable_buttons_list = [start_button, exit_button, logo]
+shootable_buttons_list = [start_button, exit_button, title]
 
 
 def menu_bullet(clip, b_list):
@@ -44,13 +44,10 @@ def menu_bullet(clip, b_list):
             clip.remove(bullet)
 
         for button in b_list:
-            if bullet.collision(button) and button.name != 'logo':
-                if bullet in clip:
-                    clip.remove(bullet)
+            if bullet.collision(button) and button.name != 'title':
+                clip.remove(bullet)
                 game_state = button.button_call_fx()
                 return game_state
-            else:
-                return True
 
 
 def start_menu():
@@ -68,7 +65,6 @@ def start_menu():
 
         # EVENT HANDLER
         for event in pygame.event.get():
-
             if event.type == pygame.QUIT:
                 exit(0)
             if event.type == pygame.KEYDOWN:
@@ -84,17 +80,15 @@ def start_menu():
         player.x = round(plaX)
 
         # GAME STATE CHECK
-
+            # DRAW
         main.draw_window()
-
-        for img in shootable_buttons_list:
-            img.draw()
-
+        [img.draw() for img in shootable_buttons_list]
         main.draw_player(player)
-
+        
+            # HANDLE BULLETS
         run_start_menu = menu_bullet(clip, shootable_buttons_list)
         if run_start_menu is None:
             run_start_menu = True
-            
-        pygame.display.update()
 
+        pygame.display.update()
+        
