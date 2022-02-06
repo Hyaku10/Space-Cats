@@ -40,12 +40,13 @@ def menu_bullet(clip, b_list):
     for bullet in clip:
         bullet.draw()
         bullet.y -= main.bulspd
-        if bullet.y < 1:
-            bullet.kill()
+        if bullet.y < 1 and bullet in clip:
+            clip.remove(bullet)
 
         for button in b_list:
-            if bullet.collision(button):
-                bullet.kill()
+            if bullet.collision(button) and button.name != 'logo':
+                if bullet in clip:
+                    clip.remove(bullet)
                 game_state = button.button_call_fx()
                 return game_state
             else:
