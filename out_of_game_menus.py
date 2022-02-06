@@ -92,8 +92,8 @@ def start_menu():
         main.draw_player(player)
 
         run_start_menu = menu_bullet(clip, shootable_buttons_list)
-        if run_start_menu==None:
-            run_start_menu=True
+        if run_start_menu is None:
+            run_start_menu = True
             
         pygame.display.update()
         print(run_start_menu)
