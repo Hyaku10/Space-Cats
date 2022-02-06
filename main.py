@@ -1,21 +1,25 @@
 # IMPORTS
 import pygame
-import math
 import random
+import subroutine
+from threading import Thread
 #pygame.__init__
 
 # VISUAL ASSETS
-background = pygame.image.load('background2.png')
-icon = pygame.image.load('007-cat-2.png')
-pla_img = pygame.image.load("002-grinning.png")
-bullet_img = pygame.transform.scale(pygame.image.load('bullet.png'), (16, 16))
-enelvl1_img = pygame.image.load("001-cyclops-1.png")
-enelvl2_img = pygame.image.load("001-cyclops-1.png")
+background = pygame.image.load('assets/background2.png')
+icon = pygame.image.load('assets/007-cat-2.png')
+pla_img = pygame.image.load("assets/002-grinning.png")
+bullet_img = pygame .transform.scale(pygame.image.load('assets/bullet.png'), (16, 16))
+enelvl1_img = pygame.image.load("assets/001-cyclops-1.png")
+enelvl2_img = pygame.image.load("assets/001-cyclops-1.png")
+
+pygame.mixer.music.load('assets/bgm.mp3')
+pygame.mixer.music.set_volume(.2)
+pygame.mixer.music.play(-1)
 
 # WINDOW
-WIN = pygame.display.set_mode((1000, 600))
 pygame.display.set_icon(icon)
-pygame.display.set_caption ("Space Cats")
+pygame.display.set_caption("Space Cats")
 
 # GAME PARAMETERS
 clip = []
@@ -34,7 +38,10 @@ time_between_enemies1 = 100
 time_between_enemies2 = 100
 time_between_enemies3 = 100
 time_between_enemies4 = 100
+WIN = pygame.display.set_mode((1000, 600))
 
+def draw_window():
+    WIN.blit(background, (0, 0))
 
 # ENEMY LEVEL 1 CLASS
 class EneLvl1:
@@ -51,7 +58,8 @@ class EneLvl1:
         WIN.blit(self.img, (self.x, self.y))
 
     def kill(self):
-        enelvl1_list.remove(self)
+        if self in enelvl1_list:
+            enelvl1_list.remove(self)
 
     def collision(self, obj):
         return collide(obj, self)
@@ -68,7 +76,8 @@ class Bullet:
         WIN.blit(self.img, (self.x, self.y))
 
     def kill(self):
-        clip.remove(self)
+        if self in clip:
+            clip.remove(self)
 
     def collision(self, obj):
         return collide(obj, self)
@@ -80,10 +89,6 @@ def collide(obj1, obj2):
     return obj1.mask.overlap(obj2.mask , (xdistance, ydistance)) != None
 
 
-# DRAW WINDOW
-def draw_window():
-    WIN.blit(background, (0, 0))
-
 
 # DRAW PLAYER
 def draw_player(player):
@@ -93,38 +98,44 @@ def draw_player(player):
 # HANDLE BULLETS
 def handle_bullets(clip, enelvl1_list):
     #try:
-        for bullet in clip:
-            bullet.draw()
-            bullet.y -= bulspd
-            if bullet.y< 1:
+    new_clip=[b for b in clip]
+    for bullet in new_clip:
+        bullet.draw()
+        bullet.y -= bulspd
+        if bullet.y< 1:
+            bullet.kill()
+        for enemy in enelvl1_list:
+            if bullet.collision(enemy) and enemy.health>0:
+                enemy.health -= 5
                 bullet.kill()
-            for enemy in enelvl1_list:
-                if bullet.collision(enemy):
-                    enemy.health -= 5
-                    bullet.kill()
-                if enemy.health <= enemy.max_health/2:
-                    enemy.img = pla_img
     #except(ValueError):
      #   pass
 
 # HANDLE ENEMIES
 def handle_enemies(enelvl1_list):
     for enemy in enelvl1_list:
-        enemy.draw()
-        if enemy.direction == True:
-            enemy.x += enelvl1spd
-            if enemy.x > 950:
-                enemy.direction = False
-                enemy.y += 50
-        elif enemy.direction == False:
-            enemy.x -= enelvl1spd
-            if enemy.x < 50:
-                enemy.direction = True
-                enemy.y += 50
+
         if enemy.y > 600:
             enemy.kill()
+
         if enemy.health <= 0:
-            enemy.kill()
+            exp_thread = Thread(target = subroutine.explosion, args = (enemy,))
+            exp_thread.start()
+
+        elif enemy.health > 0:
+            enemy.img = subroutine.health_img_transfer(enemy)
+            if enemy.direction == True:
+                enemy.x += enelvl1spd
+                if enemy.x > 950:
+                    enemy.direction = False
+                    enemy.y += 50
+            elif enemy.direction == False:
+                enemy.x -= enelvl1spd
+                if enemy.x < 50:
+                    enemy.direction = True
+                    enemy.y += 50
+        enemy.draw()
+
     return enelvl1_list
 
 
@@ -140,7 +151,6 @@ def main():
 
     while run:
         fpsclock.tick(FPS)
-        shot = False
 
         # WINDOW X BUTTON
         for event in pygame.event.get():
