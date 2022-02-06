@@ -2,6 +2,7 @@
 import pygame
 import random
 import subroutine
+import out_of_game_menus
 from threading import Thread
 #pygame.__init__
 
@@ -13,6 +14,7 @@ bullet_img = pygame .transform.scale(pygame.image.load('assets/bullet.png'), (16
 enelvl1_img = pygame.image.load("assets/001-cyclops-1.png")
 enelvl2_img = pygame.image.load("assets/001-cyclops-1.png")
 
+# MUSIC
 pygame.mixer.music.load('assets/bgm.mp3')
 pygame.mixer.music.set_volume(.2)
 pygame.mixer.music.play(-1)
@@ -20,6 +22,7 @@ pygame.mixer.music.play(-1)
 # WINDOW
 pygame.display.set_icon(icon)
 pygame.display.set_caption("Space Cats")
+WIN = pygame.display.set_mode((1000, 600))
 
 # GAME PARAMETERS
 clip = []
@@ -38,10 +41,8 @@ time_between_enemies1 = 100
 time_between_enemies2 = 100
 time_between_enemies3 = 100
 time_between_enemies4 = 100
-WIN = pygame.display.set_mode((1000, 600))
 
-def draw_window():
-    WIN.blit(background, (0, 0))
+
 
 # ENEMY LEVEL 1 CLASS
 class EneLvl1:
@@ -82,6 +83,10 @@ class Bullet:
     def collision(self, obj):
         return collide(obj, self)
 
+
+
+def draw_window():
+    WIN.blit(background, (0, 0))
 
 def collide(obj1, obj2):
     xdistance = obj2.x - obj1.x
@@ -148,6 +153,7 @@ def main():
     clocklvl2 = 0
     clocklvl3 = 0
     clocklvl4 = 0
+    out_of_game_menus.start_menu()
 
     while run:
         fpsclock.tick(FPS)
