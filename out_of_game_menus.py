@@ -97,5 +97,4 @@ def start_menu():
             run_start_menu = True
             
         pygame.display.update()
-        print(run_start_menu)
 
