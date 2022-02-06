@@ -47,8 +47,9 @@ def menu_bullet(clip, b_list):
             if bullet.collision(button):
                 bullet.kill()
                 game_state = button.button_call_fx()
-                print(game_state)
                 return game_state
+            else:
+                return True
 
 
 def start_menu():
@@ -93,6 +94,7 @@ def start_menu():
         run_start_menu = menu_bullet(clip, shootable_buttons_list)
         if run_start_menu==None:
             run_start_menu=True
+            
         pygame.display.update()
         print(run_start_menu)
 
