@@ -17,7 +17,6 @@ enelvl2_img = pygame.image.load("assets/001-cyclops-1.png")
 # MUSIC
 pygame.mixer.music.load('assets/bgm.mp3')
 pygame.mixer.music.set_volume(.2)
-pygame.mixer.music.play(-1)
 
 # WINDOW
 pygame.display.set_icon(icon)
@@ -83,17 +82,15 @@ class Bullet:
     def collision(self, obj):
         return collide(obj, self)
 
-
-
-def draw_window():
-    WIN.blit(background, (0, 0))
-
+# COLLISION
 def collide(obj1, obj2):
     xdistance = obj2.x - obj1.x
     ydistance = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask , (xdistance, ydistance)) != None
 
-
+# DRAW WINDOW
+def draw_window():
+    WIN.blit(background, (0, 0))
 
 # DRAW PLAYER
 def draw_player(player):
@@ -102,7 +99,6 @@ def draw_player(player):
 
 # HANDLE BULLETS
 def handle_bullets(clip, enelvl1_list):
-    #try:
     new_clip=[b for b in clip]
     for bullet in new_clip:
         bullet.draw()
@@ -113,8 +109,6 @@ def handle_bullets(clip, enelvl1_list):
             if bullet.collision(enemy) and enemy.health>0:
                 enemy.health -= 5
                 bullet.kill()
-    #except(ValueError):
-     #   pass
 
 # HANDLE ENEMIES
 def handle_enemies(enelvl1_list):
@@ -141,8 +135,6 @@ def handle_enemies(enelvl1_list):
                     enemy.y += 50
         enemy.draw()
 
-    return enelvl1_list
-
 
 # MAIN GAME LOOP
 def main():
@@ -154,7 +146,8 @@ def main():
     clocklvl3 = 0
     clocklvl4 = 0
     out_of_game_menus.start_menu()
-
+    pygame.mixer.music.play(-1)
+    
     while run:
         fpsclock.tick(FPS)
 
@@ -203,31 +196,5 @@ def main():
         draw_player(player)
         pygame.display.update()
 
-'''
-    def MENU():
-        run = True
-        plaX, plaY = 450, 517
-        player = pygame.Rect(450, 517, 32, 32)
-        clip = []
-        while run == True:
-            shot = False
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE and len(clip) < bulmax:
-                        bullet = pygame.Rect(player.x + 8, player.y, 16, 16)
-                        clip.append(bullet)
-            key_pre = pygame.key.get_pressed()
-            if key_pre[pygame.K_RIGHT] and player.x < 1000 - 32:
-                plaX += plaSpeed
-            if key_pre[pygame.K_LEFT] and player.x + plaSpeed > 0:
-                plaX -= plaSpeed
-            player.x = round(plaX)
-            draw_window(player)
-            handle_bullets(clip, player)
-            pygame.display.update()
-        pygame.QUIT
-        '''
 if __name__ == "__main__":
    main()
