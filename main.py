@@ -20,9 +20,11 @@ pygame.mixer.music.set_volume(.2)
 
 
 # WINDOW
+WIDTH = 1000
+HEIGHT = 600
 pygame.display.set_icon(icon)
 pygame.display.set_caption("Space Cats")
-WIN = pygame.display.set_mode((1000, 600))
+WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # GAME PARAMETERS
 clip = []
@@ -120,7 +122,7 @@ def handle_bullets(clip, enelvl1_list):
 def handle_enemies(enelvl1_list):
     for enemy in enelvl1_list:
 
-        if enemy.y > 600:
+        if enemy.y > HEIGHT:
             enemy.kill()
 
         if enemy.health <= 0:
@@ -147,7 +149,7 @@ def handle_enemies(enelvl1_list):
 # MAIN GAME LOOP
 def main():
     run = True
-    pla_x, pla_y = 450, 517
+    pla_x, pla_y = WIDTH / 2 - 32 / 2, 517
     player = pygame.Rect(450, 517, 32, 32)
     clocklvl1 = 0
     clocklvl2 = 0
@@ -172,9 +174,13 @@ def main():
                     bullet = Bullet(player.x + 8, player.y)
                     clip.append(bullet)
 
+                # ESCAPE
+                elif event.key == pygame.K_ESCAPE:
+                    print("escape")
+
         # HANDLE PLAYER MOVEMENT
         key_pre = pygame.key.get_pressed()
-        if key_pre[pygame.K_RIGHT] and player.x < 1000 - 32:
+        if key_pre[pygame.K_RIGHT] and player.x < WIDTH - 32:
             pla_x += plaspd
         if key_pre[pygame.K_LEFT] and player.x + plaspd > 0:
             pla_x -= plaspd
