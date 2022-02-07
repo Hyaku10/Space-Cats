@@ -16,7 +16,6 @@ class shootable_buttons():
             return False
         if self.name == 'exit':
             return exit(0)
-
         if self.name == 'title':
             return True
 
@@ -26,15 +25,21 @@ class shootable_buttons():
 
 
 # BUTTONS
-start_button = shootable_buttons("play", (660 - 128 / 2), (300 - 128 / 2),
+start_button = shootable_buttons("play", (200 - 128 / 2), (300 - 128 / 2),
                                  pygame.image.load('assets/menu_assets/002-play.png'))
-exit_button = shootable_buttons("exit", (330 - 128 / 2), (300 - 128 / 2),
+exit_button = shootable_buttons("exit", (800 - 128 / 2), (300 - 128 / 2),
                                 pygame.image.load('assets/menu_assets/001-exit.png'))
-title = shootable_buttons("title", (500 - 540 / 2), (300 - 540 / 2),
-                         pygame.image.load('assets/menu_assets/temp_title_art.png'))
+title = shootable_buttons("title", (540 - 540 / 2), (250 - 540 / 2),
+                         pygame.image.load('assets/menu_assets/space_cats_title3.png'))
+
+#title.img = pygame.transform.scale(title.img, (480, 281))
 # 960x540
 shootable_buttons_list = [start_button, exit_button, title]
 
+# BACKGROUND AND MUSIC
+bg=pygame.image.load('assets/menu_assets/menu_background_v1.5.png')
+pygame.mixer.music.load('assets/menu_assets/menu_bgm.mp3')
+pygame.mixer.music.play(-1)
 
 def menu_bullet(clip, b_list):
     for bullet in clip:
@@ -81,14 +86,14 @@ def start_menu():
 
         # GAME STATE CHECK
             # DRAW
-        main.draw_window()
+        main.draw_window(bg)
         [img.draw() for img in shootable_buttons_list]
         main.draw_player(player)
-        
+
             # HANDLE BULLETS
         run_start_menu = menu_bullet(clip, shootable_buttons_list)
         if run_start_menu is None:
             run_start_menu = True
 
         pygame.display.update()
-        
+

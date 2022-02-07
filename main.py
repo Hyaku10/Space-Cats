@@ -15,8 +15,9 @@ enelvl1_img = pygame.image.load("assets/001-cyclops-1.png")
 enelvl2_img = pygame.image.load("assets/001-cyclops-1.png")
 
 # MUSIC
-pygame.mixer.music.load('assets/bgm.mp3')
+
 pygame.mixer.music.set_volume(.2)
+
 
 # WINDOW
 pygame.display.set_icon(icon)
@@ -82,15 +83,17 @@ class Bullet:
     def collision(self, obj):
         return collide(obj, self)
 
-# COLLISION
+
+
+def draw_window(bg):
+    WIN.blit(bg, (0, 0))
+
 def collide(obj1, obj2):
     xdistance = obj2.x - obj1.x
     ydistance = obj2.y - obj1.y
     return obj1.mask.overlap(obj2.mask , (xdistance, ydistance)) != None
 
-# DRAW WINDOW
-def draw_window():
-    WIN.blit(background, (0, 0))
+
 
 # DRAW PLAYER
 def draw_player(player):
@@ -99,6 +102,7 @@ def draw_player(player):
 
 # HANDLE BULLETS
 def handle_bullets(clip, enelvl1_list):
+    #try:
     new_clip=[b for b in clip]
     for bullet in new_clip:
         bullet.draw()
@@ -109,6 +113,8 @@ def handle_bullets(clip, enelvl1_list):
             if bullet.collision(enemy) and enemy.health>0:
                 enemy.health -= 5
                 bullet.kill()
+    #except(ValueError):
+     #   pass
 
 # HANDLE ENEMIES
 def handle_enemies(enelvl1_list):
@@ -135,6 +141,8 @@ def handle_enemies(enelvl1_list):
                     enemy.y += 50
         enemy.draw()
 
+    return enelvl1_list
+
 
 # MAIN GAME LOOP
 def main():
@@ -146,8 +154,10 @@ def main():
     clocklvl3 = 0
     clocklvl4 = 0
     out_of_game_menus.start_menu()
+    pygame.mixer.music.fadeout(3)
+    pygame.mixer.music.load('assets/bgm.mp3')
     pygame.mixer.music.play(-1)
-    
+
     while run:
         fpsclock.tick(FPS)
 
@@ -190,7 +200,7 @@ def main():
             clocklvl4 = 0
 
 
-        draw_window()
+        draw_window(background)
         handle_bullets(clip, enelvl1_list)
         handle_enemies(enelvl1_list)
         draw_player(player)
