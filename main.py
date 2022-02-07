@@ -149,7 +149,7 @@ def handle_enemies(enelvl1_list):
 # MAIN GAME LOOP
 def main():
     run = True
-    pla_x, pla_y = WIDTH / 2 - 32 / 2, 517
+    pla_x, pla_y = 200, 517
     player = pygame.Rect(450, 517, 32, 32)
     clocklvl1 = 0
     clocklvl2 = 0
