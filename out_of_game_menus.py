@@ -29,7 +29,7 @@ start_button = shootable_buttons("play", (200 - 128 / 2), (300 - 128 / 2),
                                  pygame.image.load('assets/menu_assets/002-play.png'))
 exit_button = shootable_buttons("exit", (800 - 128 / 2), (300 - 128 / 2),
                                 pygame.image.load('assets/menu_assets/001-exit.png'))
-title = shootable_buttons("title", (540 - 540 / 2), (250 - 540 / 2),
+title = shootable_buttons("title", (500 - 400 / 2), (300 - 540 / 2),
                          pygame.image.load('assets/menu_assets/space_cats_title3.png'))
 
 #title.img = pygame.transform.scale(title.img, (480, 281))
@@ -58,7 +58,7 @@ def menu_bullet(clip, b_list):
 def start_menu():
     # DECLARATIVE (that tomer gave me)
     run_start_menu = True
-    plaX, plaY = 450, 517
+    plaX, plaY = main.WIDTH / 2 - 32 / 2, 517
     player = pygame.Rect(450, 517, 32, 32)
     clip = []
     fpsclock = pygame.time.Clock()
@@ -96,4 +96,3 @@ def start_menu():
             run_start_menu = True
 
         pygame.display.update()
-
