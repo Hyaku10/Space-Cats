@@ -1,6 +1,7 @@
 import main
 import pygame
 from sys import exit
+pygame.mixer.init()
 
 class shootable_buttons():
     def __init__(self, name, x, y, img):
@@ -29,14 +30,13 @@ start_button = shootable_buttons("play", (200 - 128 / 2), (300 - 128 / 2),
                                  pygame.image.load('assets/menu_assets/002-play.png'))
 exit_button = shootable_buttons("exit", (800 - 128 / 2), (300 - 128 / 2),
                                 pygame.image.load('assets/menu_assets/001-exit.png'))
-title = shootable_buttons("title", (540 - 540 / 2), (250 - 540 / 2),
-                         pygame.image.load('assets/menu_assets/space_cats_title3.png'))
+title = shootable_buttons("title", (500 - 400 / 2), (300 - 540 / 2),
+                                pygame.image.load('assets/menu_assets/space_cats_title3.png'))
 
-#title.img = pygame.transform.scale(title.img, (480, 281))
-# 960x540
 shootable_buttons_list = [start_button, exit_button, title]
 
 # BACKGROUND AND MUSIC
+pygame.mixer.music.set_volume(.2)
 bg=pygame.image.load('assets/menu_assets/menu_background_v1.5.png')
 pygame.mixer.music.load('assets/menu_assets/menu_bgm.mp3')
 pygame.mixer.music.play(-1)
@@ -58,8 +58,8 @@ def menu_bullet(clip, b_list):
 def start_menu():
     # DECLARATIVE (that tomer gave me)
     run_start_menu = True
-    plaX, plaY = 450, 517
-    player = pygame.Rect(450, 517, 32, 32)
+    plaX, plaY = main.WIDTH / 2 - 32 / 2, 517
+    player = main.Player(main.pla_x, main.pla_y)
     clip = []
     fpsclock = pygame.time.Clock()
     FPS = 60
@@ -85,15 +85,24 @@ def start_menu():
         player.x = round(plaX)
 
         # GAME STATE CHECK
-            # DRAW
+
+        # Draw
         main.draw_window(bg)
         [img.draw() for img in shootable_buttons_list]
-        main.draw_player(player)
+        player.draw()
 
-            # HANDLE BULLETS
+        # Handle bullets and Check if buttons hit
         run_start_menu = menu_bullet(clip, shootable_buttons_list)
         if run_start_menu is None:
             run_start_menu = True
 
         pygame.display.update()
+
+
+def escape_menu():
+    pass
+
+
+def game_over():
+    pass
 
