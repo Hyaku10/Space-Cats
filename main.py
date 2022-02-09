@@ -96,8 +96,8 @@ class Enemy:
             # Movement Attributes:
 
             # Dimensions
-            self.actual_x = WIDTH / 2
-            self.init_x = WIDTH / 2
+            self.actual_x = x
+            self.init_x = x
             self.time = 0
             # Velocity & Acc
             self.v = 0
@@ -134,6 +134,12 @@ class Enemy:
 
     def collision(self, obj):
         return collide(obj, self)
+
+    def __str__(self):
+        return f'Enemy LVL {self.lvl} with x: {self.x} and y: {self.y}'
+
+    def __repr__(self):
+        return f'|e{self.lvl} ({self.x}x, {self.y}y)|'
 
 class Bullet:
     def __init__(self, x, y):
@@ -375,6 +381,11 @@ def main():
         # Draw player and update display
         player.draw()
         pygame.display.update()
+        if len(ene_dict['l3']) > 0:
+            full_l = [f'init x{i.init_x} actualx {i.actual_x}' for i in ene_dict['l3']]
+            print(ene_dict['l3'])
+            print(full_l)
+
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
@@ -415,6 +426,16 @@ REPORT
             
             - I have the capacity to fix it, but let's focus on other things first. I'll fix it eventually, since 
               aesthetically its not nice, nor is it nice for my ego, but it really doesn't affect that much gameplay.
+              
+            - UPDATE STATUS CLOSED!
+            
+            - Error report: The problem was the parameters for the acc fx were still using my bug testing values
+              of spawning in the middle of the screen, so whenever an l3 enemy would move for the first time
+              it'd teleport to the middle of the screen
+              
+              -FIX:
+                -self.actual_x = x
+                -self.init_x = x
 
 
 
