@@ -234,7 +234,7 @@ class Enemy_bullet(Bullet):
         super().__init__(x, y)
 
         self.img = inverted_bullet_img
-        self.b_spd = bulspd
+        self.b_spd = bulspd/2
         self.src = src
 
     # Methods

@@ -23,15 +23,15 @@ WIDTH = 1000
 HEIGHT = 600
 
 # ASSETS
-explosion_gif_list = [pygame.image.load('assets/Explosion/frame_0_delay-0.png'),
-                      pygame.image.load('assets/Explosion/frame_1_delay-0.png'),
-                      pygame.image.load('assets/Explosion/frame_2_delay-0.png'),
-                      pygame.image.load('assets/Explosion/frame_3_delay-0.png'),
-                      pygame.image.load('assets/Explosion/frame_4_delay-0.png'),
-                      pygame.image.load('assets/Explosion/frame_5_delay-0.png'),
-                      pygame.image.load('assets/Explosion/frame_6_delay-0.png')]
+explosion_gif_list = [pygame.image.load('assets/Explosion/OG_Resolution/frame_0_delay-0.png'),
+                      pygame.image.load('assets/Explosion/OG_Resolution/frame_1_delay-0.png'),
+                      pygame.image.load('assets/Explosion/OG_Resolution/frame_2_delay-0.png'),
+                      pygame.image.load('assets/Explosion/OG_Resolution/frame_3_delay-0.png'),
+                      pygame.image.load('assets/Explosion/OG_Resolution/frame_4_delay-0.png'),
+                      pygame.image.load('assets/Explosion/OG_Resolution/frame_5_delay-0.png'),
+                      pygame.image.load('assets/Explosion/OG_Resolution/frame_6_delay-0.png')]
 
-explosion_gif_list = [pygame.Surface.convert_alpha(i) for i in explosion_gif_list]
+#explosion_gif_list = [pygame.Surface.convert_alpha(i) for i in explosion_gif_list]
 
 # ------------------------------------------------------------------------------------------------------------
 # ------------------------------------------------------------------------------------------------------------
@@ -119,7 +119,7 @@ def randomize_target_location(self):
         # Choose random target 50 units away
         # hw = 0
         # while hw < 50:
-        self.target_location = randint(0, WIDTH - 1)
+        self.target_location = randint(32, WIDTH - 32)
         #    hw = ((self.target_location - self.init_x) / 2) + self.init_x
 
         # Reset control checks for movement
@@ -528,7 +528,11 @@ def lvl6_handle(player, l6_enemy):
 # Exp thread
 def explosion(enemy, gif_list):
     exp_sfx.play()
+    h = enemy.img.get_height()
+    w = enemy.img.get_width()
     for image in gif_list:
+        image = pygame.transform.scale(image, (h, w))
+        image = pygame.Surface.convert_alpha(image)
         enemy.img = image
         if main.stop_threads == True:
             break
