@@ -52,7 +52,7 @@ black = (0, 0, 0)
 bulmax = 100
 time_between_enemies1 = 100
 time_between_enemies2 = 200
-time_between_enemies3 = 300
+time_between_enemies3 = 600
 time_between_enemies4 = 400
 time_between_enemies5 = 500
 time_between_enemies6 = 300
@@ -91,13 +91,15 @@ class Player:
         WIN.blit(self.img, (self.x, self.y))
 
 class Enemy:
-    def __init__(self, lvl, x=random.randint(50, 950), y=-50):
+    def __init__(self, lvl):
         # Pre-Enemy Global Attributes
-        self.x = x
-        self.y = y
+        self.x = random.randint(50,950)
+        self.y = -50
         self.lvl = lvl
         self.isexploding = False
 
+        x = self.x
+        y = self.y
         # Level specific
         if lvl == 1:
             self.direction = True
@@ -234,7 +236,7 @@ class Enemy_bullet(Bullet):
         super().__init__(x, y)
 
         self.img = inverted_bullet_img
-        self.b_spd = bulspd/2
+        self.b_spd = bulspd/3
         self.src = src
 
     # Methods
@@ -256,7 +258,7 @@ class Aimed_Enemy_bullet(Enemy_bullet):
         super().__init__(x, y, src)
         self.actual_x = x
         self.actual_y = y
-        self.b_spd /= 2
+        self.b_spd = bulspd/2
 
         # Calculations
         dy = src.y - player.y + 16
