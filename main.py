@@ -49,6 +49,7 @@ FPS = 60
 plaspd = 7
 bulspd = 20
 black = (0, 0, 0)
+green = (0, 255, 0)
 bulmax = 100
 time_between_enemies1 = 100
 time_between_enemies2 = 200
@@ -183,10 +184,21 @@ class Enemy:
 
         # Post Global Attributes
         self.mask = pygame.mask.from_surface(self.img)
+        self.max_health = self.health
+
+        if self.lvl == 5 or self.lvl == 6:
+            self.hp_bar = pygame.Rect(self.x, self.y -8, self.img.get_width(), 6)
 
     # Methods
     def draw(self):
+        if hasattr(self, 'hp_bar'):
+            self.hp_bar.x = self.x
+            self.hp_bar.y = self.y - 8
+
+            self.hp_bar.w = round(self.img.get_width() * (self.health/self.max_health))
+            pygame.draw.rect(WIN, green, self.hp_bar)
         WIN.blit(self.img, (self.x, self.y))
+
 
     def kill(self):
         if self.lvl == 1 and self in ene_dict['l1']:
