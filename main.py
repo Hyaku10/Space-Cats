@@ -66,7 +66,7 @@ time_between_enemies1 = 100
 time_between_enemies2 = 400
 time_between_enemies3 = 1000
 time_between_enemies4 = 1500
-time_between_enemies5 = 200
+time_between_enemies5 = 2000
 
 # CONTAINERS
 aimed_ene_clip = []
