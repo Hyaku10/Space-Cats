@@ -1,2 +1,3 @@
 # Space-Cats
-Themed space invaders/bullet hell type game.
+
+A space invaders mod with a few custom assets and some slight gameplay tweaks.

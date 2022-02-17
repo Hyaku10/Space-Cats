@@ -2,6 +2,8 @@ import main
 import pygame
 from sys import exit
 pygame.mixer.init()
+pygame.display.init()
+WIN = pygame.display.set_mode([1000, 600])
 
 class shootable_buttons():
     def __init__(self, name, x, y, img):
@@ -24,14 +26,13 @@ class shootable_buttons():
     def draw(self):
         main.WIN.blit(self.img, (self.x, self.y))
 
-
 # BUTTONS
 start_button = shootable_buttons("play", (200 - 128 / 2), (300 - 128 / 2),
-                                 pygame.image.load('assets/menu_assets/002-play.png'))
+                                 pygame.image.load('assets/menu_assets/002-play.png').convert_alpha())
 exit_button = shootable_buttons("exit", (800 - 128 / 2), (300 - 128 / 2),
-                                pygame.image.load('assets/menu_assets/001-exit.png'))
+                                pygame.image.load('assets/menu_assets/001-exit.png').convert_alpha())
 title = shootable_buttons("title", (500 - 400 / 2), (300 - 540 / 2),
-                                pygame.image.load('assets/menu_assets/space_cats_title3.png'))
+                                pygame.image.load('assets/menu_assets/space_cats_title3.png').convert_alpha())
 
 shootable_buttons_list = [start_button, exit_button, title]
 
@@ -54,7 +55,6 @@ def menu_bullet(clip, b_list):
                 game_state = button.button_call_fx()
                 return game_state
 
-
 def start_menu():
     # DECLARATIVE (that tomer gave me)
     run_start_menu = True
@@ -74,7 +74,7 @@ def start_menu():
                 exit(0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and len(clip) < main.bulmax:
-                    bullet = main.Bullet(player.x + 8, player.y)
+                    bullet = main.Bullet(player.x + 8, player.y, "normal")
                     clip.append(bullet)
 
         key_pre = pygame.key.get_pressed()
@@ -97,12 +97,7 @@ def start_menu():
             run_start_menu = True
 
         pygame.display.update()
-
-
 def escape_menu():
     pass
-
-
 def game_over():
     pass
-
