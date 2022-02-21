@@ -1,1 +1,0 @@
-framedelay=.1
