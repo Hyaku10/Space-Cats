@@ -6,7 +6,6 @@ import math
 import out_of_game_menus
 from threading import Thread
 
-
 # pygame.__init__
 pygame.mixer.init()
 pygame.display.init()
@@ -22,9 +21,11 @@ fireball_img = pygame.image.load("assets/007-fire-1.png").convert_alpha()
 bullet_normal_img = pygame.transform.scale(pygame.image.load('assets/bullet.png'), (16, 16)).convert_alpha()
 bullet_fire_img = pygame.transform.rotate(fireball_img, 180).convert_alpha()
 bullet_ice_img = pygame.image.load("assets/008-moonstone.png").convert_alpha()
-bullet_electric_img = pygame.image.load("assets/010-lighting.png").convert_alpha()
+bullet_electric_img = pygame.transform.rotate(pygame.image.load("assets/010-lighting.png").convert_alpha(), 45)
 bullet_rainbow_img = pygame.image.load("assets/rainbow.png").convert_alpha()
 inverted_bullet_img = pygame.transform.rotate(bullet_normal_img, 180).convert_alpha()
+poop_img = pygame.image.load("assets/001-poop.png").convert_alpha()
+falling_poop_img = pygame.image.load("assets/poop-3.png").convert_alpha()
 # SCREEN
 background = pygame.image.load('assets/background2.png').convert_alpha()
 icon = pygame.image.load('assets/007-cat-2.png').convert_alpha()
@@ -59,17 +60,19 @@ pla_x = WIDTH / 2 - 32 / 2
 pla_y = GROUND - pla_img.get_height()
 fpsclock = pygame.time.Clock()
 FPS = 60
-plaspd = 7
-dropspd = 5
-bulspd = 20
+drop_despawn_spd = FPS*15
+plaspd = 7 #player speed
+dropspd = 5 #drop speed
+bulspd = 20 #bullet speed
 black = (0, 0, 0)
-bulmax = 100
+bulmax = 100 #max bullets on screen
+freeze_time = FPS*5 #how long ene freeze when hit by ice bullet
 time_between_enemies1 = 100
 time_between_enemies2 = 400
 time_between_enemies3 = 1000
 time_between_enemies4 = 5000
 time_between_enemies5 = 1700
-arc_bullet_step = 10
+arc_bullet_step = 100
 arc_bullet_start = 90
 arc_bullet_end = 270 + arc_bullet_step
 
@@ -98,18 +101,25 @@ class Drop:
         self.y = y
         self.kind = kind
         self.img = pla_img
+        self.despawn_clock = 0
 
         if self.kind == "crystal":
             self.img = crystal_img
 
         if self.kind == "fire":
-            self.img = crystal_img
+            self.img = drop_fire_img
 
         if self.kind == "ice":
-            self.img = crystal_img
+            self.img = drop_ice_img
 
         if self.kind == "electric":
-            self.img = crystal_img
+            self.img = drop_electric_img
+
+        if self.kind == "rainbow":
+            self.img = drop_rainbow_img
+
+        if self.kind == "poop":
+            self.img = falling_poop_img
 
         self.mask = pygame.mask.from_surface(self.img)
 
@@ -125,9 +135,31 @@ class Drop:
             # Max health enforcer
             if player.health > player.max_health:
                 player.health = player.max_health
+            drops_list.remove(self)
+        if self.kind == "ice" and len(power_ups["ice"]) < 9:
+            power_ups["ice"].append("ice")
+            drops_list.remove(self)
+        if self.kind == "fire" and len(power_ups["fire"]) < 9:
+            power_ups["fire"].append("fire")
+            drops_list.remove(self)
+        if self.kind == "electric" and len(power_ups["electric"]) < 9:
+            power_ups["electric"].append("electric")
+            drops_list.remove(self)
+        if self.kind == "rainbow" and len(power_ups["rainbow"]) < 9:
+            power_ups["rainbow"].append("rainbow")
+            drops_list.remove(self)
+        if self.kind == "poop":
+            player.health -= 5
+            drops_list.remove(self)
 
     def get_height(self):
         return self.img.get_height()
+
+    def despawn(self):
+        if self.despawn_clock <= drop_despawn_spd:
+            self.despawn_clock += 1
+        else:
+            drops_list.remove(self)
 class Player:
     def __init__(self, x=pla_x, y=pla_y, health=100):
         self.health = health
@@ -150,11 +182,13 @@ class Enemy:
         self.y = y
         self.lvl = lvl
         self.isexploding = False
+        self.is_frozen = False
+        self.freeze_clock = 0
 
         # Level specific
         if lvl == 1:
             self.direction = random.choice([True, False])
-            self.health = 5
+            self.health = 10
             self.img = enelvl1_img
             self.spd = 1
         elif lvl == 2:
@@ -230,6 +264,8 @@ class Enemy:
             self.direction = random.choice([True, False])
             self.y = y-50
 
+        if self.is_frozen == True:
+            self.spd = 0.6
 
         # Post Global Attributes
         self.mask = pygame.mask.from_surface(self.img)
@@ -268,6 +304,12 @@ class Enemy:
 
     def __repr__(self):
         return f'|e{self.lvl} ({self.x}x, {self.y}y)|'
+
+    def poop(self):
+        poop_chance = random.randint(0, FPS*5)
+        if poop_chance == 0:
+            poop = Drop(self.x + self.img.get_width()/2 - poop_img.get_width()/2, self.y, "poop")
+            drops_list.append(poop)
 class Bullet:
     def __init__(self, x, y, mode=None):
         self.x = x
@@ -293,7 +335,7 @@ class Bullet:
 
         if mode == "electric":
             self.img = bullet_electric_img
-            self.damage = 10
+            self.damage = 5
 
         if mode == "rainbow":
             self.img = bullet_rainbow_img
@@ -407,8 +449,10 @@ def collide(obj1, obj2):
     return obj1.mask.overlap(obj2.mask, (xdistance, ydistance)) is not None
 def display_HP(HP):
     WIN.blit(hp_icon, (10, HEIGHT - 42))
-    pygame.draw.rect(WIN, (255, 0, 0), (50, HEIGHT - 42, 200, 32), 0)
+    HP_bar_red = pygame.draw.rect(WIN, (255, 0, 0), (50, HEIGHT - 42, 200, 32), 0)
     pygame.draw.rect(WIN, (0, 255, 0), (50, HEIGHT - 42, HP*2, 32), 0)
+    HP_label = smaller_font.render((str(HP)), True, (0, 0, 0))
+    WIN.blit(HP_label, (HP_bar_red.x + 100 - HP_label.get_width()/2, HEIGHT - 42))
 def display_power_ups(power_ups, player, selected_bullet):
     #SELECT
     pygame.draw.rect(WIN, (255, 0, 0), (300, HEIGHT - 42 - 5, 60, 42), 0)
@@ -461,10 +505,9 @@ def display_power_ups(power_ups, player, selected_bullet):
     arc_b_label = num_font.render(str(len(power_ups["arc bullet"])), True, (0, 0, 0))
     WIN.blit(arc_b_label, (485 + 90, HEIGHT - 42))
 def drop(dropper):
-    drop = random.randint(1, 10)
-    if drop == 7:
-        #drop2 = random.randint(1, 4)
-        drop2 = 1
+    drop = random.randint(1, 3)
+    if drop == 3:
+        drop2 = random.randint(1, 4)
         if drop2 == 1:
             drops_list.append(Drop(dropper.x, dropper.y, "crystal"))
         if drop2 == 2:
@@ -501,7 +544,10 @@ def handle_bullets(clip, ene_dict, player, ene_clip, aimed_ene_clip):
         for enemy in ene_full_list:
             if bullet.collision(enemy) and enemy.health > 0:
                 enemy.health -= 5
-                bullet.kill()
+                if bullet.mode != "electric":
+                    bullet.kill()
+                if bullet.mode == "ice":
+                    enemy.is_frozen = True
 
     if len(arc_bullet_clip) != 0:
         #squash_arc_b = subroutine.list_squasher(arc_bullet_clip)
@@ -580,8 +626,16 @@ def handle_enemies(ene_dict, player):
     ene = subroutine.ene_dict_to_ene_list(ene_dict)
 
     for enemy in ene:
-        if enemy.health <= 0:
+        # Handle Freezing
+        if enemy.is_frozen == True:
+            enemy.freeze_clock += 1
+            enemy.spd = round(enemy.spd/2)
+            if enemy.freeze_clock >= freeze_time:
+                enemy.is_frozen = False
+
+
             # Explosion
+        if enemy.health <= 0:
             if enemy.isexploding == False:
                 enemy.isexploding = True
                 drop(enemy)
@@ -607,25 +661,37 @@ def handle_enemies(ene_dict, player):
             subroutine.player_got_hit(player)
             enemy.kill()
 
+        if enemy.lvl == 4 and drops_list.count("poop") <= 2:
+            enemy.poop()
+
         # Update visuals of enemy
         enemy.draw()
 def handle_drops(drops_list, player):
     for drop in drops_list:
+        if drop.y <= GROUND + 32:
+            drop.despawn()
         if drop.y < GROUND - drop.get_height() - 5:
             drop.y += dropspd
         drop.draw()
         if drop.collision(player):
             drop.pick_up(player)
-            drops_list.remove(drop)
+        if drop.kind == "poop":
+            if drop.y >= GROUND - drop.get_height() - 2:
+                drop.img = poop_img
 
 # MAIN
 def main():
+    TIME = 0
     global arc_bullet_clip
     global stop_threads
     run = True
     player = Player()
     pla_x = player.x
     selected_bullet = 0
+
+    # Power_up Clock
+    using_power_up = False
+    power_up_clock = 0
 
     # Spawn Clocks
     clocklvl1 = 0
@@ -647,6 +713,7 @@ def main():
         fpsclock.tick(FPS)
         ene_clip = subroutine.ene_clip
         aimed_ene_clip = subroutine.aimed_ene_clip
+        TIME += 1  # measuring time
 
         # Losing
         if player.health <= 0:
@@ -718,7 +785,7 @@ def main():
                     escape = True
                     while escape:
                         clicked = False
-                        # Frme
+                        # Frame
                         pygame.draw.rect(WIN, (0, 0, 0), (WIDTH / 2 - 150, 100, 300, 400), 0)
                         pygame.draw.rect(WIN, (100, 100, 100), (WIDTH / 2 - 145, 105, 290, 390), 0)
                         # Resume Button
@@ -779,6 +846,23 @@ def main():
                     if selected_bullet > 4:
                         selected_bullet = 0
 
+                elif event.key == pygame.K_UP:
+                    if selected_bullet == 0 and len(power_ups["fire"]) > 0 and using_power_up == False:
+                        player.bullet_type = "fire"
+                        power_ups["fire"].pop()
+                        using_power_up = True
+                    elif selected_bullet == 1 and len(power_ups["ice"]) > 0 and using_power_up == False:
+                        player.bullet_type = "ice"
+                        power_ups["ice"].pop()
+                        using_power_up = True
+                    elif selected_bullet == 2 and len(power_ups["electric"]) > 0 and using_power_up == False:
+                        player.bullet_type = "electric"
+                        power_ups["electric"].pop()
+                        using_power_up = True
+                    elif selected_bullet == 3 and len(power_ups["rainbow"]) > 0 and using_power_up == False:
+                        player.bullet_type = "rainbow"
+                        power_ups["rainbow"].pop()
+                        using_power_up = True
 
         # HANDLE PLAYER MOVEMENT
         key_pre = pygame.key.get_pressed()
@@ -792,6 +876,14 @@ def main():
         if key_pre[pygame.K_SPACE] and player.bullet_type == "rainbow":
             bullet = Bullet(player.x, player.y, "rainbow")
             clip.append(bullet)
+
+        # Power_up Clock
+        if using_power_up == True:
+            power_up_clock += 1
+        if power_up_clock >= FPS*10:
+            player.bullet_type = "normal"
+            using_power_up = False
+            power_up_clock = 0
 
         # ENEMY SPAWN
         clocklvl1 += 1

@@ -72,15 +72,16 @@ def start_menu():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 exit(0)
+                #Shooting
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and len(clip) < main.bulmax:
-                    bullet = main.Bullet(player.x + 8, player.y, "normal")
+                    bullet = main.Bullet(player.x, player.y, "normal")
                     clip.append(bullet)
 
         key_pre = pygame.key.get_pressed()
-        if key_pre[pygame.K_RIGHT] and player.x < 1000 - 32:
+        if key_pre[pygame.K_RIGHT] and player.x + player.spd < 1000 - 32:
             plaX += main.plaspd
-        if key_pre[pygame.K_LEFT] and player.x > 0:
+        if key_pre[pygame.K_LEFT] and player.x - player.spd > 0:
             plaX -= main.plaspd
         player.x = round(plaX)
 
@@ -97,7 +98,5 @@ def start_menu():
             run_start_menu = True
 
         pygame.display.update()
-def escape_menu():
-    pass
 def game_over():
     pass
